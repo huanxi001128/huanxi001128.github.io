@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>记账本</title>
-    <link rel="apple-touch-icon" href="./icon.png">
+    <title>账本</title>
     <!-- PWA 适配苹果手机桌面图标 -->
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5Lqs6LWE5rqQIiwic2hvcnRfbmFtZSI6IuezuuezuuezuuezuS4reWbvSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMzQ5OGY2In0=">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,6 +37,7 @@
         .filter-row{display:flex;gap:10px}
         .filter-row>div{flex:1}
         .file-input{display:none;}
+        .cate-tip{padding:8px 12px;background:#ffeaa7;border-radius:8px;margin-bottom:10px;text-align:center;display:none;}
     </style>
 </head>
 <body>
@@ -99,6 +99,7 @@
 
     <div class="card">
         <div class="title">📜 账单列表</div>
+        <div class="cate-tip" id="cateTip"></div>
         <div id="billList"></div>
         <button class="btn btn-export" onclick="exportCsv()" style="margin-top:16px;">💾 导出CSV账单</button>
         <button class="btn btn-import" onclick="document.getElementById('fileInput').click()" style="margin-top:10px;">📥 导入CSV备份文件</button>
@@ -115,6 +116,7 @@ const cateConfig = {
 let billList = JSON.parse(localStorage.getItem("myBill")) || [];
 let pieChartIns = null;
 let chartType = ""; //标记当前是年度/当月饼图
+let selectedCate = null; //饼图点击选中的分类
 
 // 保存筛选年月到本地
 function saveFilter(){
@@ -254,10 +256,23 @@ function renderBillList(){
     const year = Number(document.getElementById("yearSel").value);
     const month = Number(document.getElementById("monthSel").value);
     const listWrap = document.getElementById("billList");
-    const filterBills = billList.filter(b=>{
+    const tipDom = document.getElementById("cateTip");
+
+    let filterBills = billList.filter(b=>{
         const d = new Date(b.date);
         return d.getFullYear()===year && (month? (d.getMonth()+1===month):true);
-    }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    })
+
+    // 如果选中分类，继续过滤
+    if(selectedCate){
+        filterBills = filterBills.filter(b=>b.cate === selectedCate)
+        tipDom.style.display = "block";
+        tipDom.innerText = `🔍 当前筛选分类：${selectedCate}，再次点击饼图区块可清除筛选`;
+    }else{
+        tipDom.style.display = "none";
+    }
+
+    filterBills.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
     let html = "";
     let inTotal = 0, expTotal =0;
@@ -277,7 +292,7 @@ function renderBillList(){
             <button class="del-btn" onclick="delBill(${realIdx})">删</button>
         </div>`
     })
-    listWrap.innerHTML = html || "<div style='padding:20px;text-align:center;color:#888'>本月暂无账单</div>";
+    listWrap.innerHTML = html || "<div style='padding:20px;text-align:center;color:#888'>暂无账单</div>";
     document.getElementById("monthTotal").innerText = `✅本月收入：${inTotal.toFixed(2)}元 | ❌本月支出：${expTotal.toFixed(2)}元 | 结余：${(inTotal-expTotal).toFixed(2)}元`
 }
 
@@ -291,6 +306,8 @@ function toggleYearChart(){
     }
     wrap.style.display = "block";
     chartType = "year";
+    selectedCate = null; //切换饼图清空分类筛选
+    renderBillList();
     drawYearPie();
 }
 
@@ -304,6 +321,8 @@ function toggleMonthChart(){
     }
     wrap.style.display = "block";
     chartType = "month";
+    selectedCate = null; //切换饼图清空分类筛选
+    renderBillList();
     drawMonthPie();
 }
 
@@ -332,6 +351,19 @@ function drawYearPie(){
         options:{
             responsive:true,
             maintainAspectRatio:false,
+            onClick:function(e,elements){
+                if(elements.length>0){
+                    const idx = elements[0].index;
+                    const cateName = labels[idx];
+                    // 点击同一分类，取消筛选；不同分类切换筛选
+                    if(selectedCate === cateName){
+                        selectedCate = null;
+                    }else{
+                        selectedCate = cateName;
+                    }
+                    renderBillList();
+                }
+            },
             plugins:{
                 legend:{position:"bottom"},
                 title:{display:true,text:`${year}年 全年支出分类`},
@@ -389,6 +421,19 @@ function drawMonthPie(){
         options:{
             responsive:true,
             maintainAspectRatio:false,
+            onClick:function(e,elements){
+                if(elements.length>0){
+                    const idx = elements[0].index;
+                    const cateName = labels[idx];
+                    // 点击同一分类，取消筛选；不同分类切换筛选
+                    if(selectedCate === cateName){
+                        selectedCate = null;
+                    }else{
+                        selectedCate = cateName;
+                    }
+                    renderBillList();
+                }
+            },
             plugins:{
                 legend:{position:"bottom"},
                 title:{display:true,text:`${year}年${month}月 当月支出分类`},
