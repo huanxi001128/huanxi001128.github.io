@@ -295,9 +295,11 @@ function drawYearPie(){
                 datalabels:{
                     enabled:true,
                     color:"#ffffff",
-                    font:{size:13,weight:"bold"},
+                    font:{size:14,weight:"bold"},
+                    anchor:"center",
+                    align:"center",
                     formatter:function(value){
-                        return value + "元";
+                        return value.toFixed(0)+"元";
                     }
                 }
             }
@@ -350,9 +352,11 @@ function drawMonthPie(){
                 datalabels:{
                     enabled:true,
                     color:"#ffffff",
-                    font:{size:13,weight:"bold"},
+                    font:{size:14,weight:"bold"},
+                    anchor:"center",
+                    align:"center",
                     formatter:function(value){
-                        return value + "元";
+                        return value.toFixed(0)+"元";
                     }
                 }
             }
