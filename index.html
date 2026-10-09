@@ -2,438 +2,415 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人记账本</title>
-    <!-- PWA 苹果桌面WebApp配置 -->
+    <!-- PWA 适配苹果手机桌面图标 -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5Lqs6LWE5rqQIiwic2hvcnRfbmFtZSI6IuezuuezuuezuuezuS4reWbvSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMzQ5OGY2In0=">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="记账本">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2337bccf'/><text x='50' y='60' font-size='50' fill='white' text-anchor='middle'>账</text></svg>">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi57G76LWE5pawIiwic2hvcnRfbmFtZSI6Iuexuua1iSIsImRlc2NyaXB0aW9uIjoi57G76LWE5paw57G754K5Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiMzN2JjY2YiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0iIzM3YmNjZiIvPjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1zaXplPSI1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuexuua1iS8vdGV4dD48L3N2Zz4iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif;}
-        body{background:#f5f7fa;padding:16px;padding-bottom:80px;color:#333;}
-        .container{max-width:600px;margin:0 auto;}
-        .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px #00000010;}
-        .title{font-size:20px;font-weight:bold;margin-bottom:12px;text-align:center;}
-        .stat-row{display:flex;gap:10px;margin-bottom:12px;}
-        .stat-item{flex:1;text-align:center;padding:12px;border-radius:12px;}
-        .income{background:#e6f7ef;color:#009e5f;}
-        .expense{background:#ffeef0;color:#e53e3e;}
-        .balance{background:#eff6ff;color:#2b6cb0;}
-        .form-item{margin-bottom:12px;}
-        label{display:block;margin-bottom:4px;font-size:14px;color:#666;}
-        input,select,textarea{width:100%;border:1px solid #ddd;border-radius:10px;padding:12px;font-size:16px;background:#fff;}
-        .btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;margin:8px 0;}
-        .btn-primary{background:#37bccf;color:#fff;}
-        .btn-success{background:#009e5f;color:#fff;}
-        .btn-danger{background:#e53e3e;color:#fff;}
-        .btn-toggle{padding:10px;border:none;border-radius:10px;background:#74b9ff;color:#fff;font-size:16px;cursor:pointer;width:100%;margin-top:8px;}
-        .record-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #eee;}
-        .record-left{flex:1;}
-        .record-cat{font-size:14px;color:#888;}
-        .record-amount{font-weight:bold;font-size:17px;}
-        .del-btn{padding:6px 10px;border-radius:8px;background:#ff4d4f;color:white;border:none;}
-        .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-        .filter-bar select{flex:1;}
-        #chartBox{height:240px;margin-top:10px;}
-        #yearChartBox{height:240px;margin-top:10px;display:none;}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}
+        body{background:#f4f5f7;padding:16px;color:#333}
+        .container{max-width:700px;margin:0 auto}
+        .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px #00000010}
+        .title{font-size:20px;font-weight:bold;margin-bottom:16px;text-align:center}
+        .row{margin-bottom:12px}
+        label{display:block;margin-bottom:6px;font-size:14px;color:#555}
+        input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:#fff}
+        .btn{width:100%;padding:13px;border:none;border-radius:10px;background:#3498f6;color:#fff;font-size:17px;margin-top:8px}
+        .btn-year-chart{background:#27ae60;margin-bottom:10px;}
+        .btn-month-chart{background:#e67e22;margin-bottom:10px;}
+        .btn-export{background:#9b59b6}
+        .btn-import{background:#16a085}
+        .bill-item{padding:14px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+        .bill-info{flex:1}
+        .bill-date{font-size:14px;color:#777}
+        .bill-cate{font-weight:bold;margin:2px 0}
+        .bill-note{font-size:14px;color:#666}
+        .bill-amount{font-size:18px;font-weight:bold}
+        .del-btn{background:#ff4d4f;color:white;border:none;padding:6px 10px;border-radius:6px;margin-left:8px}
+        .total{font-size:17px;padding:10px;background:#f0f7ff;border-radius:10px;margin-bottom:10px}
+        .chart-box{display:none}
+        canvas{width:100%!important;height:350px!important;margin-top:10px}
+        .filter-row{display:flex;gap:10px}
+        .filter-row>div{flex:1}
+        .file-input{display:none;}
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- 年度汇总卡片 增加【查看年度支出饼图】按钮 -->
     <div class="card">
-        <div class="title">📅 年度汇总</div>
-        <div class="filter-bar">
-            <select id="filterYearStat" onchange="calcYearStat();hideYearChart()">
-            </select>
-        </div>
-        <div class="stat-row">
-            <div class="stat-item income">
-                <div>当年收入</div>
-                <div id="yearIncome">0.00</div>
-            </div>
-            <div class="stat-item expense">
-                <div>当年支出</div>
-                <div id="yearExpense">0.00</div>
-            </div>
-        </div>
-        <div class="stat-row">
-            <div class="stat-item balance" style="flex:1">
-                <div>当年结余</div>
-                <div id="yearBalance">0.00</div>
-            </div>
-        </div>
-        <button class="btn-toggle" onclick="toggleYearChart()">查看/隐藏【当年支出饼图】</button>
-        <div id="yearChartBox">
-            <canvas id="yearPieChart"></canvas>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="title">📒 账单筛选汇总</div>
-        <div class="stat-row">
-            <div class="stat-item income">
-                <div>收入合计</div>
-                <div id="totalIncome">0.00</div>
-            </div>
-            <div class="stat-item expense">
-                <div>支出合计</div>
-                <div id="totalExpense">0.00</div>
-            </div>
-        </div>
-        <div class="stat-row">
-            <div class="stat-item balance" style="flex:1">
-                <div>结余</div>
-                <div id="totalBalance">0.00</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加账单表单 -->
-    <div class="card">
-        <div class="title">➕ 添加收支记录</div>
-        <div class="form-item">
+        <div class="title">📒 记账本</div>
+        <div class="row">
             <label>类型</label>
-            <select id="type" onchange="changeCategoryList()">
-                <option value="expense">支出</option>
+            <select id="type">
                 <option value="income">收入</option>
+                <option value="expense">支出</option>
             </select>
         </div>
-        <div class="form-item">
+        <div class="row">
             <label>分类</label>
             <select id="category">
+                <!-- 动态加载分类 -->
             </select>
         </div>
-        <div class="form-item">
-            <label>金额</label>
-            <input type="number" id="amount" placeholder="输入金额" step="0.01">
-        </div>
-        <div class="form-item">
-            <label>日期（可选择2026-01、2027等任意日期）</label>
+        <div class="row">
+            <label>日期</label>
             <input type="date" id="date">
         </div>
-        <div class="form-item">
+        <div class="row">
+            <label>金额</label>
+            <input type="number" step="0.01" id="money" placeholder="输入金额">
+        </div>
+        <div class="row">
             <label>备注</label>
-            <textarea id="remark" placeholder="备注信息（选填）"></textarea>
+            <input type="text" id="remark" placeholder="备注（选填）">
         </div>
-        <button class="btn btn-primary" onclick="addRecord()">保存记录</button>
+        <button class="btn" onclick="addBill()">✅ 添加账单</button>
     </div>
 
-    <!-- 账单列表筛选：【年份下拉】→【月份下拉】二级联动 -->
     <div class="card">
-        <div class="title">📋 账单列表</div>
-        <div class="filter-bar">
-            <select id="billYearSelect" onchange="yearChangeBillFilter()">
-            </select>
-            <select id="billMonthSelect" onchange="renderList()">
-            </select>
-            <button class="btn btn-success" style="width:auto;padding:10px" onclick="exportCsv()">导出CSV</button>
+        <div class="title">📊 账单筛选</div>
+        <div class="filter-row">
+            <div>
+                <label>选择年份</label>
+                <select id="yearSel" onchange="updateMonthOptions();renderBillList();">
+                </select>
+            </div>
+            <div>
+                <label>选择月份</label>
+                <select id="monthSel" onchange="renderBillList();">
+                </select>
+            </div>
         </div>
-        <div id="recordList"></div>
+        <div class="total" id="monthTotal"></div>
     </div>
 
-    <!-- 当前筛选条件的支出饼图 -->
     <div class="card">
-        <div class="title">📊 支出分类饼图</div>
-        <div id="chartBox">
+        <button class="btn btn-year-chart" onclick="toggleYearChart()">📈 点击查看/隐藏【年度支出饼图】</button>
+        <button class="btn btn-month-chart" onclick="toggleMonthChart()">📊 点击查看/隐藏【当月支出饼图】</button>
+        <div class="chart-box" id="chartWrap">
             <canvas id="pieChart"></canvas>
         </div>
     </div>
+
+    <div class="card">
+        <div class="title">📜 账单列表</div>
+        <div id="billList"></div>
+        <button class="btn btn-export" onclick="exportCsv()" style="margin-top:16px;">💾 导出CSV账单</button>
+        <button class="btn btn-import" onclick="document.getElementById('fileInput').click()" style="margin-top:10px;">📥 导入CSV备份文件</button>
+        <input type="file" id="fileInput" accept=".csv" class="file-input" onchange="importCsv(event)">
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// 定义分类
-const categoryData = {
+// 收支分类
+const cateConfig = {
     income: ["工资", "奖金", "爸妈资助", "其他"],
     expense: ["餐饮（吃+喝）", "衣服", "护肤", "日常用品", "医疗", "交通", "娱乐", "转账（家人）"]
 };
+let billList = JSON.parse(localStorage.getItem("myBill")) || [];
+let pieChartIns = null;
+let chartType = ""; //标记当前是年度/当月饼图
 
-// 初始化本地存储
-let records = JSON.parse(localStorage.getItem('bookRecords')) || [];
-let chart;
-let yearChart;
-let yearChartShow = false;
-
-// 默认日期为今天
-document.getElementById('date').valueAsDate = new Date();
-
-// 根据【收入/支出】切换对应的分类下拉
-function changeCategoryList(){
-    const type = document.getElementById('type').value;
-    const catSel = document.getElementById('category');
-    catSel.innerHTML = '';
-    categoryData[type].forEach(cat=>{
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        catSel.appendChild(opt);
-    })
-}
-
-// 初始化年度统计下拉
-function initYearStatSelect(){
-    const sel = document.getElementById('filterYearStat');
-    sel.innerHTML = '';
-    const years = new Set();
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    years.add(currentYear);
-    records.forEach(r=>years.add(r.date.slice(0,4)));
-    Array.from(years).sort().reverse().forEach(y=>{
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.innerText = y + "年";
-        sel.appendChild(opt);
-    })
-    sel.value = currentYear;
-}
-
-// 计算年度统计
-function calcYearStat(){
-    const selYear = document.getElementById('filterYearStat').value;
-    const yearRec = records.filter(r=>r.date.slice(0,4) === selYear);
-    let yIncome=0,yExpense=0;
-    yearRec.forEach(r=>{
-        if(r.type==='income') yIncome += r.amount;
-        else yExpense += r.amount;
-    })
-    document.getElementById('yearIncome').innerText = yIncome.toFixed(2);
-    document.getElementById('yearExpense').innerText = yExpense.toFixed(2);
-    document.getElementById('yearBalance').innerText = (yIncome - yExpense).toFixed(2);
-}
-
-// 隐藏年度饼图
-function hideYearChart(){
-    yearChartShow = false;
-    document.getElementById('yearChartBox').style.display = 'none';
-}
-
-// 切换年度饼图显示/隐藏
-function toggleYearChart(){
-    yearChartShow = !yearChartShow;
-    const box = document.getElementById('yearChartBox');
-    if(yearChartShow){
-        box.style.display = 'block';
-        drawYearPie();
-    }else{
-        box.style.display = 'none';
-    }
-}
-
-// 绘制【选中年份】的支出饼图
-function drawYearPie(){
-    const selYear = document.getElementById('filterYearStat').value;
-    const yearRec = records.filter(r=>r.date.slice(0,4) === selYear && r.type === 'expense');
-    const group = {};
-    yearRec.forEach(r=>{
-        if(!group[r.category]) group[r.category]=0;
-        group[r.category] += r.amount;
-    })
-    const labels = Object.keys(group);
-    const data = Object.values(group);
-    const ctx = document.getElementById('yearPieChart').getContext('2d');
-    if(yearChart) yearChart.destroy();
-    yearChart = new Chart(ctx,{
-        type:'pie',
-        data:{
-            labels:labels,
-            datasets:[{data:data,backgroundColor:['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dda0dd','#74b9ff','#b19cd9']}]
-        },
-        options:{responsive:true,maintainAspectRatio:false}
-    })
-}
-
-// ========== 账单筛选二级联动：年份选择触发月份更新 ==========
-function initBillYearSelect(){
-    const sel = document.getElementById('billYearSelect');
-    sel.innerHTML = '';
-    // 全部账单选项
-    const allOpt = document.createElement('option');
-    allOpt.value = 'all';
-    allOpt.innerText = '✅ 全部账单（所有年份）';
-    sel.appendChild(allOpt);
-
-    const years = new Set();
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    records.forEach(r=>years.add(r.date.slice(0,4)));
-    if(years.size === 0) years.add(currentYear);
-    Array.from(years).sort().reverse().forEach(y=>{
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.innerText = y + "年";
-        sel.appendChild(opt);
-    })
-    sel.value = currentYear;
-}
-
-// 切换年份后，自动填充对应月份下拉
-function yearChangeBillFilter(){
-    const yearVal = document.getElementById('billYearSelect').value;
-    const monthSel = document.getElementById('billMonthSelect');
-    monthSel.innerHTML = '';
-
-    if(yearVal === 'all'){
-        // 全部账单：月份下拉禁用
-        monthSel.disabled = true;
-        const opt = document.createElement('option');
-        opt.innerText = '无需选择月份';
-        monthSel.appendChild(opt);
-    }else{
-        monthSel.disabled = false;
-        // 该年份全部月份选项
-        const allMonthOpt = document.createElement('option');
-        allMonthOpt.value = 'yearAll';
-        allMonthOpt.innerText = '✅ 该年全部月份';
-        monthSel.appendChild(allMonthOpt);
-
-        // 获取该年份存在的所有月份，倒序
-        const monthSet = new Set();
-        records.filter(r=>r.date.slice(0,4) === yearVal).forEach(r=>{
-            monthSet.add(r.date.slice(0,7));
-        })
-        Array.from(monthSet).sort().reverse().forEach(m=>{
-            const opt = document.createElement('option');
-            opt.value = m;
-            opt.innerText = m;
-            monthSel.appendChild(opt);
-        })
-    }
-    renderList();
-}
-
-// 添加记录
-function addRecord(){
-    const type = document.getElementById('type').value;
-    const category = document.getElementById('category').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    const date = document.getElementById('date').value;
-    const remark = document.getElementById('remark').value.trim();
-    if(!amount || amount<=0){alert('请输入有效金额');return;}
-    const item = {id:Date.now(),type,category,amount,date,remark};
-    records.unshift(item);
-    saveData();
-    resetForm();
-    renderAll();
-}
-
-function resetForm(){
-    document.getElementById('amount').value='';
-    document.getElementById('remark').value='';
+// 初始化
+window.onload = function(){
+    initCate();
+    initYearSelect();
     document.getElementById('date').valueAsDate = new Date();
+    renderBillList();
 }
 
-// 保存到本地存储
-function saveData(){
-    localStorage.setItem('bookRecords',JSON.stringify(records));
+// 切换收入/支出时，分类下拉跟着变
+document.getElementById("type").onchange = initCate;
+function initCate(){
+    const type = document.getElementById("type").value;
+    const sel = document.getElementById("category");
+    sel.innerHTML = "";
+    cateConfig[type].forEach(c=>{
+        sel.innerHTML += `<option value="${c}">${c}</option>`
+    })
 }
 
-// 删除记录
-function delRecord(id){
-    if(!confirm('确定删除这条账单？'))return;
-    records = records.filter(r=>r.id!==id);
+// 年份下拉初始化
+function initYearSelect(){
+    const yearSel = document.getElementById("yearSel");
+    const years = new Set();
+    const now = new Date();
+    years.add(now.getFullYear());
+    billList.forEach(b=>{
+        const y = new Date(b.date).getFullYear();
+        years.add(y);
+    })
+    const yArr = Array.from(years).sort((a,b)=>b-a);
+    yearSel.innerHTML = "";
+    yArr.forEach(y=>yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+    updateMonthOptions();
+}
+
+// 根据选中年份，更新月份下拉
+function updateMonthOptions(){
+    const year = document.getElementById("yearSel").value;
+    const monthSel = document.getElementById("monthSel");
+    const months = new Set();
+    billList.filter(b=> new Date(b.date).getFullYear() == year).forEach(b=>{
+        const m = new Date(b.date).getMonth()+1;
+        months.add(m);
+    })
+    const mArr = Array.from(months).sort((a,b)=>a-b);
+    monthSel.innerHTML = "";
+    mArr.forEach(m=>monthSel.innerHTML += `<option value="${m}">${m}月</option>`);
+    if(mArr.length===0) monthSel.innerHTML = `<option value="">暂无账单</option>`;
+}
+
+// 添加账单
+function addBill(){
+    const type = document.getElementById("type").value;
+    const cate = document.getElementById("category").value;
+    const date = document.getElementById("date").value;
+    const money = Number(document.getElementById("money").value);
+    const remark = document.getElementById("remark").value.trim();
+    if(!money || money<=0){alert("请输入正确金额");return;}
+    billList.push({type,cate,date,money,remark});
     saveData();
-    renderAll();
+    initYearSelect();
+    renderBillList();
+    document.getElementById("money").value="";
+    document.getElementById("remark").value="";
 }
 
-// 渲染统计、列表、图表
-function renderAll(){
-    initYearStatSelect();
-    calcYearStat();
-    initBillYearSelect();
-    yearChangeBillFilter();
-    changeCategoryList();
-    renderList();
+// 保存本地存储
+function saveData(){
+    localStorage.setItem("myBill",JSON.stringify(billList));
 }
 
-function renderList(){
-    const yearVal = document.getElementById('billYearSelect').value;
-    const monthVal = document.getElementById('billMonthSelect').value;
-    let filterRec;
-
-    if(yearVal === 'all'){
-        filterRec = [...records];
-    }else if(monthVal === 'yearAll'){
-        // 选中某一年的全部月份
-        filterRec = records.filter(r=>r.date.slice(0,4) === yearVal);
-    }else{
-        // 选中具体年月
-        filterRec = records.filter(r=>r.date.slice(0,7) === monthVal);
+// 删除账单
+function delBill(idx){
+    if(confirm("确定删除这条记录？")){
+        billList.splice(idx,1);
+        saveData();
+        initYearSelect();
+        renderBillList();
     }
-
-    let income=0,expense=0;
-    filterRec.forEach(r=>{
-        if(r.type==='income') income += r.amount;
-        else expense += r.amount;
-    })
-    document.getElementById('totalIncome').innerText = income.toFixed(2);
-    document.getElementById('totalExpense').innerText = expense.toFixed(2);
-    document.getElementById('totalBalance').innerText = (income-expense).toFixed(2);
-
-    // 账单列表，按日期从新到旧排序
-    filterRec.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const listDom = document.getElementById('recordList');
-    listDom.innerHTML = '';
-    filterRec.forEach(r=>{
-        const div = document.createElement('div');
-        div.className='record-item';
-        const amtColor = r.type==='income' ? '#009e5f' : '#e53e3e';
-        div.innerHTML = `
-            <div class="record-left">
-                <div>${r.date} | ${r.category}</div>
-                <div class="record-cat">${r.remark||'无备注'}</div>
-            </div>
-            <div class="record-amount" style="color:${amtColor}">${r.type==='income'?'+':'-'}${r.amount.toFixed(2)}</div>
-            <button class="del-btn" onclick="delRecord(${r.id})">删</button>
-        `;
-        listDom.appendChild(div);
-    })
-
-    drawPie(filterRec);
 }
 
-// 绘制筛选后的支出饼图（原来的饼图）
-function drawPie(list){
-    const ctx = document.getElementById('pieChart').getContext('2d');
-    const expRec = list.filter(x=>x.type==='expense');
+// 渲染账单列表
+function renderBillList(){
+    const year = Number(document.getElementById("yearSel").value);
+    const month = Number(document.getElementById("monthSel").value);
+    const listWrap = document.getElementById("billList");
+    const filterBills = billList.filter(b=>{
+        const d = new Date(b.date);
+        return d.getFullYear()===year && (month? (d.getMonth()+1===month):true);
+    }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    let html = "";
+    let inTotal = 0, expTotal =0;
+    filterBills.forEach((item,idx)=>{
+        const realIdx = billList.indexOf(item);
+        if(item.type==="income") inTotal += item.money;
+        else expTotal += item.money;
+        const amountText = item.type==="income" ? `+${item.money.toFixed(2)}` : `-${item.money.toFixed(2)}`;
+        const amountColor = item.type==="income" ? "#27ae60":"#e74c3c";
+        html += `
+        <div class="bill-item">
+            <div class="bill-info">
+                <div class="bill-date">${item.date} | ${item.cate}</div>
+                <div class="bill-note">${item.remark||"无备注"}</div>
+            </div>
+            <div class="bill-amount" style="color:${amountColor}">${amountText}</div>
+            <button class="del-btn" onclick="delBill(${realIdx})">删</button>
+        </div>`
+    })
+    listWrap.innerHTML = html || "<div style='padding:20px;text-align:center;color:#888'>本月暂无账单</div>";
+    document.getElementById("monthTotal").innerText = `✅本月收入：${inTotal.toFixed(2)}元 | ❌本月支出：${expTotal.toFixed(2)}元 | 结余：${(inTotal-expTotal).toFixed(2)}元`
+}
+
+// 切换【年度饼图】
+function toggleYearChart(){
+    const wrap = document.getElementById("chartWrap");
+    // 如果当前打开的就是年度饼图，点击关闭
+    if(wrap.style.display === "block" && chartType === "year"){
+        wrap.style.display = "none";
+        return;
+    }
+    wrap.style.display = "block";
+    chartType = "year";
+    drawYearPie();
+}
+
+// 切换【当月饼图】
+function toggleMonthChart(){
+    const wrap = document.getElementById("chartWrap");
+    // 如果当前打开的就是当月饼图，点击关闭
+    if(wrap.style.display === "block" && chartType === "month"){
+        wrap.style.display = "none";
+        return;
+    }
+    wrap.style.display = "block";
+    chartType = "month";
+    drawMonthPie();
+}
+
+// 绘制【年度支出饼图】
+function drawYearPie(){
+    const year = Number(document.getElementById("yearSel").value);
+    const yearExp = billList.filter(b=>b.type==="expense" && new Date(b.date).getFullYear()===year);
     const group = {};
-    expRec.forEach(r=>{
-        if(!group[r.category]) group[r.category]=0;
-        group[r.category] += r.amount;
+    yearExp.forEach(b=>{
+        if(!group[b.cate]) group[b.cate]=0;
+        group[b.cate] += b.money;
     })
     const labels = Object.keys(group);
     const data = Object.values(group);
-    if(chart) chart.destroy();
-    chart = new Chart(ctx,{
-        type:'pie',
+    if(pieChartIns) pieChartIns.destroy();
+    const ctx = document.getElementById("pieChart").getContext('2d');
+    pieChartIns = new Chart(ctx,{
+        type:"pie",
         data:{
             labels:labels,
-            datasets:[{data:data,backgroundColor:['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dda0dd','#74b9ff','#b19cd9']}]
+            datasets:[{
+                data:data,
+                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6"]
+            }]
         },
-        options:{responsive:true,maintainAspectRatio:false}
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{position:"bottom"},
+                title:{display:true,text:`${year}年 全年支出分类`},
+                tooltip:{
+                    callbacks:{
+                        label:function(context){
+                            const val = context.raw;
+                            const total = context.dataset.data.reduce((a,b)=>a+b,0);
+                            const pct = ((val/total)*100).toFixed(1);
+                            return `${context.label}: ${val.toFixed(2)}元 (${pct}%)`
+                        }
+                    }
+                },
+                datalabels:{
+                    enabled:true,
+                    color:"#ffffff",
+                    font:{size:13,weight:"bold"},
+                    formatter:function(value){
+                        return value + "元";
+                    }
+                }
+            }
+        }
     })
 }
 
-// 导出CSV备份（导出全部账单）
-function exportCsv(){
-    let csv = '日期,类型,分类,金额,备注\n';
-    records.forEach(r=>{
-        csv += `${r.date},${r.type==='income'?'收入':'支出'},${r.category},${r.amount},${r.remark}\n`;
+// 绘制【当月支出饼图】
+function drawMonthPie(){
+    const year = Number(document.getElementById("yearSel").value);
+    const month = Number(document.getElementById("monthSel").value);
+    const monthExp = billList.filter(b=>{
+        const d = new Date(b.date);
+        return b.type==="expense" && d.getFullYear()===year && (d.getMonth()+1 === month);
+    });
+    const group = {};
+    monthExp.forEach(b=>{
+        if(!group[b.cate]) group[b.cate]=0;
+        group[b.cate] += b.money;
     })
-    const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const labels = Object.keys(group);
+    const data = Object.values(group);
+    if(pieChartIns) pieChartIns.destroy();
+    const ctx = document.getElementById("pieChart").getContext('2d');
+    pieChartIns = new Chart(ctx,{
+        type:"pie",
+        data:{
+            labels:labels,
+            datasets:[{
+                data:data,
+                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6"]
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{position:"bottom"},
+                title:{display:true,text:`${year}年${month}月 当月支出分类`},
+                tooltip:{
+                    callbacks:{
+                        label:function(context){
+                            const val = context.raw;
+                            const total = context.dataset.data.reduce((a,b)=>a+b,0);
+                            const pct = ((val/total)*100).toFixed(1);
+                            return `${context.label}: ${val.toFixed(2)}元 (${pct}%)`
+                        }
+                    }
+                },
+                datalabels:{
+                    enabled:true,
+                    color:"#ffffff",
+                    font:{size:13,weight:"bold"},
+                    formatter:function(value){
+                        return value + "元";
+                    }
+                }
+            }
+        }
+    })
+}
+
+// 导出CSV
+function exportCsv(){
+    let csv = "日期,类型,分类,金额,备注\n";
+    billList.forEach(b=>{
+        const typeText = b.type==="income"?"收入":"支出";
+        csv += `${b.date},${typeText},${b.cate},${b.money},${b.remark}\n`
+    })
+    const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `全部记账账单_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `记账账单_${new Date().toLocaleDateString()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
 }
 
-// 页面加载初始化
-renderAll();
+// CSV导入功能（追加账单，不覆盖原有）
+function importCsv(event){
+    const file = event.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const text = e.target.result;
+        const lines = text.split("\n");
+        const newBills = [];
+        for(let i=1;i<lines.length;i++){
+            const line = lines[i].trim();
+            if(!line) continue;
+            const row = line.split(",");
+            if(row.length<4) continue;
+            const date = row[0];
+            const typeText = row[1];
+            const cate = row[2];
+            const money = parseFloat(row[3]);
+            const remark = row[4]||"";
+            const type = typeText === "收入" ? "income" : "expense";
+            newBills.push({type,cate,date,money,remark});
+        }
+        if(newBills.length ===0){
+            alert("导入失败，文件内没有有效账单！");
+            return;
+        }
+        billList = billList.concat(newBills);
+        saveData();
+        initYearSelect();
+        renderBillList();
+        alert(`✅成功导入 ${newBills.length} 条账单！`);
+    }
+    reader.readAsText(file);
+    event.target.value = "";
+}
 </script>
 </body>
 </html>
