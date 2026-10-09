@@ -76,12 +76,12 @@
         <div class="filter-row">
             <div>
                 <label>选择年份</label>
-                <select id="yearSel" onchange="updateMonthOptions();renderBillList();">
+                <select id="yearSel" onchange="updateMonthOptions();saveFilter();renderBillList();">
                 </select>
             </div>
             <div>
                 <label>选择月份</label>
-                <select id="monthSel" onchange="renderBillList();">
+                <select id="monthSel" onchange="saveFilter();renderBillList();">
                 </select>
             </div>
         </div>
@@ -106,14 +106,37 @@
 </div>
 
 <script>
-// 收支分类
+// 收支分类【支出增加学习】
 const cateConfig = {
     income: ["工资", "奖金", "爸妈资助", "其他"],
-    expense: ["餐饮（吃+喝）", "衣服", "护肤", "日常用品", "医疗", "交通", "娱乐", "转账（家人）"]
+    expense: ["餐饮（吃+喝）", "衣服", "护肤", "日常用品", "医疗", "交通", "娱乐", "转账（家人）", "学习"]
 };
 let billList = JSON.parse(localStorage.getItem("myBill")) || [];
 let pieChartIns = null;
 let chartType = ""; //标记当前是年度/当月饼图
+
+// 保存筛选年月到本地
+function saveFilter(){
+    const y = document.getElementById("yearSel").value;
+    const m = document.getElementById("monthSel").value;
+    localStorage.setItem("filterYear", y);
+    localStorage.setItem("filterMonth", m);
+}
+
+// 获取最新账单的年月
+function getLatestBillYM(){
+    if(billList.length ===0){
+        const now = new Date();
+        return {y: now.getFullYear(), m: now.getMonth()+1};
+    }
+    //按日期倒序，取第一条
+    const sorted = [...billList].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latestDate = new Date(sorted[0].date);
+    return {
+        y: latestDate.getFullYear(),
+        m: latestDate.getMonth()+1
+    }
+}
 
 // 初始化
 window.onload = function(){
@@ -147,7 +170,36 @@ function initYearSelect(){
     const yArr = Array.from(years).sort((a,b)=>b-a);
     yearSel.innerHTML = "";
     yArr.forEach(y=>yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+
+    // 读取上次保存的年月，没有则取最新账单年月
+    let targetY = localStorage.getItem("filterYear");
+    let targetM = localStorage.getItem("filterMonth");
+    const latestYM = getLatestBillYM();
+
+    if(!targetY || !targetM){
+        targetY = latestYM.y;
+        targetM = latestYM.m;
+    }
+
+    // 赋值年份
+    yearSel.value = targetY;
     updateMonthOptions();
+
+    // 检查月份是否存在，不存在自动切到最新月份
+    const monthSel = document.getElementById("monthSel");
+    let monthExist = false;
+    for(let opt of monthSel.options){
+        if(opt.value == targetM){
+            monthExist = true;
+            break;
+        }
+    }
+    if(monthExist){
+        monthSel.value = targetM;
+    }else{
+        monthSel.value = latestYM.m;
+        saveFilter();
+    }
 }
 
 // 根据选中年份，更新月份下拉
@@ -273,7 +325,7 @@ function drawYearPie(){
             labels:labels,
             datasets:[{
                 data:data,
-                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6"]
+                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6","#7986cb"]
             }]
         },
         options:{
@@ -330,7 +382,7 @@ function drawMonthPie(){
             labels:labels,
             datasets:[{
                 data:data,
-                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6"]
+                backgroundColor:["#e74c3c","#1abc9c","#3498db","#a5d6a7","#f9e79f","#bb8fce","#ffb74d","#95a5a6","#7986cb"]
             }]
         },
         options:{
